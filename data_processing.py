@@ -160,6 +160,13 @@ def process_data(data_dir, data_identifier,winSize=30):
     testX = testX[:, :, 4:]
 
     # return trainX, testX, trainY, testY#, trainAux, testAux
+    # train_data = np.delete(train_data, train_data.shape[0] - 1, axis = 0)
+    # valid_data = np.delete(valid_data, valid_data.shape[0] - 1, axis = 0)
+    # testX = np.delete(testX, testX.shape[0] - 1, axis = 0)
+    # train_labels = np.delete(train_labels, train_labels.shape[0] - 1, axis = 0)
+    # valid_labels = np.delete(valid_labels, valid_labels.shape[0] - 1, axis = 0)
+    # testY = np.delete(testY, testY.shape[0] - 1, axis = 0)
+    
     return train_data, valid_data, testX, train_labels, valid_labels, testY
 
 #=================================END OF DATA PROCESSING ==============================================
@@ -189,3 +196,24 @@ def split_data(idx,window_size,data,max_RUL):
     trainX = np.array(trainX)
     trainY = np.array(trainY)/max_RUL
     return trainX,trainY
+
+data_dir = "E:/RUL/CMAPSSData/"
+train_data, valid_data, testX, train_labels, valid_labels, testY = process_data(data_dir, "FD002")
+data = {'train_data' : train_data, 
+        'valid_data' : valid_data, 
+        'testX' : testX,
+        'train_labels' : train_labels,
+        'valid_labels' : valid_labels,
+        'testY' : testY
+        }
+
+
+np.save('data.npy', data) 
+read_dictionary = np.load('data.npy',allow_pickle='TRUE').item()
+
+a = read_dictionary['train_data']
+b = read_dictionary['train_labels']
+
+print(a.shape)
+print(b.shape)
+
