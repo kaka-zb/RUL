@@ -216,4 +216,3 @@ b = read_dictionary['train_labels']
 
 print(a.shape)
 print(b.shape)
-
