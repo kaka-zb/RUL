@@ -114,7 +114,7 @@ def process_data(data_dir, data_identifier,winSize=30):
    
 
 
-    train_data, train_labels, valid_data, valid_labels = get_train_valid(train_01_nor,winSize,max_RUL)
+    train_data, train_labels, train_next_seq, valid_data, valid_labels, valid_next_seq = get_train_valid(train_01_nor,winSize,max_RUL)
     testX = []; testY = []; testLen = []
 
     for i in range(1,int(np.max(test_01_nor[:,0]))+1):
@@ -167,7 +167,7 @@ def process_data(data_dir, data_identifier,winSize=30):
     # valid_labels = np.delete(valid_labels, valid_labels.shape[0] - 1, axis = 0)
     # testY = np.delete(testY, testY.shape[0] - 1, axis = 0)
     
-    return train_data, valid_data, testX, train_labels, valid_labels, testY
+    return train_data, valid_data, testX, train_labels, valid_labels, testY, train_next_seq
 
 #=================================END OF DATA PROCESSING ==============================================
 def get_train_valid(data,window_size,max_RUL):
@@ -175,11 +175,34 @@ def get_train_valid(data,window_size,max_RUL):
     train_size = int(0.9 *num_engines)
     test_size = num_engines - train_size
     train_idx, valid_idx = torch.utils.data.random_split(np.arange(num_engines), [train_size, test_size])
-    train_data,train_labels=split_data(train_idx.indices,window_size,data,max_RUL)
-    valid_data,valid_labels=split_data(valid_idx.indices,window_size,data,max_RUL)
-    return train_data,train_labels,valid_data,valid_labels
+    train_data,train_labels, train_next_seq = split_data(train_idx.indices,window_size,data,max_RUL)
+    valid_data,valid_labels, valid_next_seq = split_data(valid_idx.indices,window_size,data,max_RUL)
+    return train_data,train_labels,train_next_seq,valid_data,valid_labels,valid_next_seq
+
+
+# def split_data(idx,window_size,data,max_RUL):
+#     trainX = [];trainY = []
+#     winSize = window_size
+#     for i in (idx):
+#         #the data of the the i_th engine
+#         ind =np.where(data[:,0]==i)
+#         #the id of the ith engine
+#         ind = ind[0]
+#         data_temp = data[ind,:]
+#         for j in range(len(data_temp)-winSize+1):
+#             trainX.append(data_temp[j:j+winSize,1:].tolist())
+#             train_RUL = len(data_temp)-winSize-j
+#             if train_RUL > max_RUL:
+#                 train_RUL = max_RUL
+#             trainY.append(train_RUL)
+#     trainX = np.array(trainX)
+#     trainY = np.array(trainY)/max_RUL
+#     return trainX,trainY
+
 def split_data(idx,window_size,data,max_RUL):
-    trainX = [];trainY = []
+    trainX = []
+    trainY = []
+    next_seq = []
     winSize = window_size
     for i in (idx):
         #the data of the the i_th engine
@@ -187,32 +210,38 @@ def split_data(idx,window_size,data,max_RUL):
         #the id of the ith engine
         ind = ind[0]
         data_temp = data[ind,:]
-        for j in range(len(data_temp)-winSize+1):
+        for j in range(len(data_temp)-winSize):
             trainX.append(data_temp[j:j+winSize,1:].tolist())
+            next_seq.append(data_temp[j + 1 : j + winSize + 1, 1 :].tolist())
             train_RUL = len(data_temp)-winSize-j
             if train_RUL > max_RUL:
                 train_RUL = max_RUL
             trainY.append(train_RUL)
     trainX = np.array(trainX)
     trainY = np.array(trainY)/max_RUL
-    return trainX,trainY
-
-data_dir = "E:/RUL/CMAPSSData/"
-train_data, valid_data, testX, train_labels, valid_labels, testY = process_data(data_dir, "FD002")
-data = {'train_data' : train_data, 
-        'valid_data' : valid_data, 
-        'testX' : testX,
-        'train_labels' : train_labels,
-        'valid_labels' : valid_labels,
-        'testY' : testY
-        }
+    next_seq = np.array(next_seq)
+    return trainX, trainY, next_seq
 
 
-np.save('data.npy', data) 
-read_dictionary = np.load('data.npy',allow_pickle='TRUE').item()
 
-a = read_dictionary['train_data']
-b = read_dictionary['train_labels']
 
-print(a.shape)
-print(b.shape)
+
+# data_dir = "E:/RUL/CMAPSSData/"
+# train_data, valid_data, testX, train_labels, valid_labels, testY = process_data(data_dir, "FD002")
+# data = {'train_data' : train_data, 
+#         'valid_data' : valid_data, 
+#         'testX' : testX,
+#         'train_labels' : train_labels,
+#         'valid_labels' : valid_labels,
+#         'testY' : testY
+#         }
+
+
+# np.save('data.npy', data) 
+# read_dictionary = np.load('data.npy',allow_pickle='TRUE').item()
+
+# a = read_dictionary['train_data']
+# b = read_dictionary['train_labels']
+
+# print(a.shape)
+# print(b.shape)

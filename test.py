@@ -25,31 +25,37 @@
 # a = a.squeeze(0)
 # print(a.shape)
 
+# import torch
+# from torch import nn
+# from seq2seq import Encoder, Decoder, Attention, Seq2Seq, RUL_pred
+
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# attn = Attention(512, 512)
+# enc = Encoder(14, 512, 512)
+# dec = Decoder(14, 512, 512, attn)
+# RUL_pre = RUL_pred(512)
+
+# model = Seq2Seq(enc, dec, RUL_pre, device).to(device)
+
+# src = torch.rand(2, 10, 30, 14)
+# trg = torch.rand(2, 10, 30, 14)
+# labels = torch.rand(2, 10, 30)
+
+# model.train()
+# for i in range(0, 2):
+#     src_ = src[i]
+#     trg_ = trg[i]
+#     labels_ = labels[i]
+    
+#     output, RUL_label = model(src_, trg_)
+#     print(output.shape)
+#     print(RUL_label.shape)
+
+import numpy as np
 import torch
-from torch import nn
-from seq2seq import Encoder, Decoder, Attention, Seq2Seq, RUL_pred
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+a, b = torch.utils.data.random_split(np.arange(5), [3,2])
 
-attn = Attention(512, 512)
-enc = Encoder(14, 512, 512)
-dec = Decoder(14, 512, 512, attn)
-RUL_pre = RUL_pred(512)
-
-model = Seq2Seq(enc, dec, RUL_pre, device).to(device)
-
-src = torch.rand(2, 10, 30, 14)
-trg = torch.rand(2, 10, 30, 14)
-labels = torch.rand(2, 10, 30)
-
-model.train()
-for i in range(0, 2):
-    src_ = src[i]
-    trg_ = trg[i]
-    labels_ = labels[i]
-    
-    output, RUL_label = model(src_, trg_)
-    print(output.shape)
-    print(RUL_label.shape)
-    
-    
+print(a.indices)
+print(b.indices)
